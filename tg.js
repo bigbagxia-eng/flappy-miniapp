@@ -12,7 +12,7 @@ function tgSendBest(score, best) {
   const lastSent = Number(localStorage.getItem("last_sent_best") || 0);
   if (best <= lastSent) return;
 
-  TG.sendData(JSON.stringify({ score, best }));
+  TG.sendData(JSON.stringify({ score, best, ts: Date.now() }));
   localStorage.setItem("last_sent_best", String(best));
 }
 
