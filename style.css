@@ -58,7 +58,7 @@ canvas{
   gap: 6px;
   padding: 10px 12px;
   border-radius: 14px;
-  background: rgba(0,0,0,.22);
+  background: rgba(0,0,0,.20);
   border: 1px solid rgba(255,255,255,.10);
   backdrop-filter: blur(10px);
 }
@@ -66,6 +66,7 @@ canvas{
   font-size: 32px;
   font-weight: 900;
   line-height: 1;
+  text-shadow: 0 8px 18px rgba(0,0,0,.35);
 }
 .subrow{
   display:flex;
@@ -75,7 +76,7 @@ canvas{
 #best, #coinsHud{
   font-size: 12px;
   font-weight: 800;
-  color: rgba(255,255,255,.75);
+  color: rgba(255,255,255,.78);
   letter-spacing: .6px;
 }
 
@@ -95,10 +96,7 @@ canvas{
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(0,0,0,.25);
 }
-.btn.small{
-  padding: 10px 12px;
-  border-radius: 14px;
-}
+.btn.small{ padding: 10px 12px; }
 .btn.ghost{
   background: rgba(255,255,255,.12);
   color: rgba(255,255,255,.92);
@@ -118,20 +116,10 @@ canvas{
   align-items:center;
   pointer-events:none;
 }
-#brand{
+#brand, #coinsTop{
   font-weight: 950;
-  letter-spacing: .4px;
-  opacity: .85;
-  background: rgba(0,0,0,.20);
-  border: 1px solid rgba(255,255,255,.10);
-  padding: 8px 10px;
-  border-radius: 14px;
-  backdrop-filter: blur(10px);
-}
-#coinsTop{
-  font-weight: 900;
-  opacity: .9;
-  background: rgba(0,0,0,.20);
+  opacity: .88;
+  background: rgba(0,0,0,.18);
   border: 1px solid rgba(255,255,255,.10);
   padding: 8px 10px;
   border-radius: 14px;
@@ -143,7 +131,7 @@ canvas{
   inset:0;
   display:grid;
   place-items:center;
-  background: radial-gradient(ellipse at center, rgba(0,0,0,.15), rgba(0,0,0,.55));
+  background: radial-gradient(ellipse at center, rgba(0,0,0,.12), rgba(0,0,0,.62));
   padding: 18px;
 }
 .hidden{ display:none; }
@@ -158,97 +146,57 @@ canvas{
 }
 .card.big{ padding: 18px; }
 
-.title{
-  font-size: 22px;
-  font-weight: 950;
-  margin-bottom: 8px;
-}
-.text{
-  color: var(--text);
-  margin-bottom: 14px;
-  line-height: 1.25;
-  white-space: pre-line;
-}
+.title{ font-size: 22px; font-weight: 950; margin-bottom: 8px; }
+.text{ color: var(--text); margin-bottom: 14px; line-height: 1.25; white-space: pre-line; }
 .muted{ color: var(--muted); }
 
-.row{
-  display:flex;
-  gap: 10px;
-  margin-top: 10px;
-}
+.row{ display:flex; gap: 10px; margin-top: 10px; }
 .row .btn{ flex:1; }
 
 .setting{ margin-top: 12px; }
-.labelrow{
-  display:flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-  font-weight: 850;
-}
+.labelrow{ display:flex; justify-content: space-between; margin-bottom: 6px; font-weight: 850; }
 input[type="range"]{ width:100%; }
 
 /* Shop */
-.shopRow{
-  display:flex;
-  gap: 12px;
-  align-items:center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
+.shopRow{ display:flex; gap: 12px; align-items:center; justify-content: space-between; flex-wrap: wrap; }
 .caseBox{
-  display:flex;
-  gap: 12px;
-  align-items:center;
-  padding: 12px;
-  border-radius: 16px;
+  display:flex; gap: 12px; align-items:center;
+  padding: 12px; border-radius: 16px;
   border: 1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,.18);
+  background: rgba(0,0,0,.16);
   width: 100%;
 }
 .caseIcon{ font-size: 28px; }
 .caseTitle{ font-weight: 950; }
 
 #rouletteWrap{ margin-top: 14px; }
-
 .roulette{
   position: relative;
   height: 92px;
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.20);
+  background: rgba(0,0,0,.18);
   overflow: hidden;
 }
 .marker{
-  position:absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  transform: translateX(-50%);
+  position:absolute; top: 0; bottom: 0; left: 50%;
+  width: 0; transform: translateX(-50%);
   border-left: 2px solid rgba(255,255,255,.85);
   box-shadow: 0 0 18px rgba(255,255,255,.35);
   pointer-events:none;
 }
 .strip{
-  position:absolute;
-  left:0;
-  top:0;
-  height:100%;
-  display:flex;
-  gap: 10px;
-  align-items:center;
+  position:absolute; left:0; top:0; height:100%;
+  display:flex; gap: 10px; align-items:center;
   padding: 0 12px;
   will-change: transform;
 }
 .ritem{
-  width: 120px;
-  height: 70px;
+  width: 120px; height: 70px;
   border-radius: 14px;
   border: 2px solid rgba(255,255,255,.16);
   background: rgba(255,255,255,.06);
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
+  display:flex; flex-direction:column; justify-content:center;
   padding: 10px;
 }
 .ritem .n{ font-weight: 950; }
@@ -259,15 +207,11 @@ input[type="range"]{ width:100%; }
   padding: 10px 12px;
   border-radius: 14px;
   border: 2px solid rgba(255,255,255,.16);
-  background: rgba(0,0,0,.18);
+  background: rgba(0,0,0,.16);
   font-weight: 900;
 }
 
-.invTitle{
-  margin-top: 14px;
-  font-weight: 950;
-  opacity: .95;
-}
+.invTitle{ margin-top: 14px; font-weight: 950; opacity: .95; }
 .inventory{
   margin-top: 8px;
   display:grid;
@@ -278,7 +222,7 @@ input[type="range"]{ width:100%; }
   padding: 10px;
   border-radius: 14px;
   border: 2px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.18);
+  background: rgba(0,0,0,.16);
   cursor:pointer;
 }
 .inv .name{ font-weight: 950; }
