@@ -8,107 +8,118 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-  <div id="topbar">
-    <div class="stat">
-      <span class="lbl">SCORE</span>
-      <span id="score">0</span>
-    </div>
-    <div class="stat">
-      <span class="lbl">BEST</span>
-      <span id="best">0</span>
-    </div>
-    <div class="stat coins">
-      <span class="lbl">🪙</span>
-      <span id="coinsTop">0</span>
-    </div>
+  <div id="wrap">
+    <div id="frame">
+      <canvas id="c" width="360" height="640"></canvas>
 
-    <button id="btnPause" class="iconbtn" title="Pause">⏸</button>
-  </div>
-
-  <div id="hud" class="hud">
-    <div class="hudline">
-      <span>🪙</span><span id="coinsHud">0</span>
-    </div>
-  </div>
-
-  <canvas id="c" width="360" height="640"></canvas>
-
-  <!-- MENU -->
-  <div id="screenMenu" class="screen">
-    <div class="card">
-      <h1>Flappy Mini</h1>
-      <p class="muted">Играй, собирай монеты и открывай кейсы со скинами.</p>
-      <div class="btns">
-        <button id="btnMenuPlay" class="btn primary">Играть</button>
-        <button id="btnMenuSettings" class="btn">Настройки</button>
-        <button id="btnMenuShop" class="btn">Магазин</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SETTINGS -->
-  <div id="screenSettings" class="screen hidden">
-    <div class="card">
-      <h2>Настройки</h2>
-
-      <div class="row">
-        <div class="rowlbl">Музыка</div>
-        <input id="musicSlider" type="range" min="0" max="100" value="100" />
-        <div id="musicVal" class="val">100%</div>
-      </div>
-
-      <div class="row">
-        <div class="rowlbl">Эффекты</div>
-        <input id="sfxSlider" type="range" min="0" max="100" value="100" />
-        <div id="sfxVal" class="val">100%</div>
-      </div>
-
-      <button id="btnMute" class="btn">Звук: ВКЛ</button>
-      <button id="btnBackFromSettings" class="btn ghost">Назад</button>
-    </div>
-  </div>
-
-  <!-- SHOP -->
-  <div id="screenShop" class="screen hidden">
-    <div class="card wide">
-      <h2>Магазин</h2>
-      <p class="muted">Кейс со скином стоит <b>10 🪙</b>. Редкость подсвечивается.</p>
-
-      <div class="shopTop">
-        <div class="caseBox">
-          <div class="caseTitle">Кейс со скином</div>
-          <div class="casePrice">Цена: <b>10 🪙</b></div>
-          <button id="btnOpenCase" class="btn primary">Открыть кейс</button>
+      <!-- HUD -->
+      <div id="hud">
+        <div id="scoreBox">
+          <div id="score">0</div>
+          <div class="subrow">
+            <div id="best">BEST 0</div>
+            <div id="coinsHud">🪙 0</div>
+          </div>
         </div>
 
-        <div class="rouletteBox">
-          <div id="rouletteWrap" class="rouletteWrap hidden">
-            <div class="marker"></div>
-            <div class="rouletteViewport">
-              <div id="rouletteStrip" class="rouletteStrip"></div>
+        <div id="hudBtns">
+          <button id="btnPause" class="btn small ghost" title="Pause">⏸</button>
+        </div>
+      </div>
+
+      <!-- UI overlay (screens) -->
+      <div id="ui">
+        <div id="topbar">
+          <div id="brand">Flappy Mini</div>
+          <div id="coinsTop">🪙 0</div>
+        </div>
+
+        <!-- MENU -->
+        <div id="screenMenu" class="screen">
+          <div class="card big">
+            <div class="title">Flappy Mini</div>
+            <div class="text muted">Играй, собирай монеты и открывай кейсы со скинами.</div>
+            <div class="row">
+              <button id="btnMenuPlay" class="btn">Играть</button>
+            </div>
+            <div class="row">
+              <button id="btnMenuSettings" class="btn ghost">Настройки</button>
+              <button id="btnMenuShop" class="btn ghost">Магазин</button>
             </div>
           </div>
-
-          <div id="dropResult" class="dropResult hidden"></div>
-          <button id="btnEquipSkin" class="btn hidden">Надеть скин</button>
         </div>
-      </div>
 
-      <h3>Твои скины</h3>
-      <div id="inventory" class="invGrid"></div>
+        <!-- SETTINGS -->
+        <div id="screenSettings" class="screen hidden">
+          <div class="card big">
+            <div class="title">Настройки</div>
 
-      <button id="btnBackFromShop" class="btn ghost">Назад</button>
-    </div>
-  </div>
+            <div class="setting">
+              <div class="labelrow"><span>Музыка</span><span id="musicVal">100%</span></div>
+              <input id="musicSlider" type="range" min="0" max="100" value="100" />
+            </div>
 
-  <!-- GAME OVER -->
-  <div id="screenGameOver" class="screen hidden">
-    <div class="card">
-      <h2 id="goTitle">Game Over</h2>
-      <p id="goText">Счёт: 0</p>
-      <div class="btns">
-        <button id="btnRestart" class="btn primary">Рестарт</button>
-        <button id="btnBackToMenu" class="btn">В меню</button>
+            <div class="setting">
+              <div class="labelrow"><span>Эффекты</span><span id="sfxVal">100%</span></div>
+              <input id="sfxSlider" type="range" min="0" max="100" value="100" />
+            </div>
+
+            <div class="row">
+              <button id="btnMute" class="btn ghost">Звук: ВКЛ</button>
+              <button id="btnBackFromSettings" class="btn">Назад</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SHOP -->
+        <div id="screenShop" class="screen hidden">
+          <div class="card big">
+            <div class="title">Магазин</div>
+            <div class="text muted">Кейс со скином стоит <b>10 🪙</b>. Редкость подсвечивается.</div>
+
+            <div class="shopRow">
+              <div class="caseBox">
+                <div class="caseIcon">📦</div>
+                <div>
+                  <div class="caseTitle">Кейс со скином</div>
+                  <div class="muted">Цена: <b>10 🪙</b></div>
+                </div>
+                <button id="btnOpenCase" class="btn">Открыть</button>
+              </div>
+            </div>
+
+            <div id="rouletteWrap" class="hidden">
+              <div class="roulette">
+                <div class="marker"></div>
+                <div id="rouletteStrip" class="strip"></div>
+              </div>
+              <div id="dropResult" class="dropResult hidden"></div>
+              <div class="row">
+                <button id="btnEquipSkin" class="btn hidden">Надеть скин</button>
+              </div>
+            </div>
+
+            <div class="invTitle">Твои скины</div>
+            <div id="inventory" class="inventory"></div>
+
+            <div class="row">
+              <button id="btnBackFromShop" class="btn">Назад</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- GAME OVER -->
+        <div id="screenGameOver" class="screen hidden">
+          <div class="card big">
+            <div id="goTitle" class="title">Game Over</div>
+            <div id="goText" class="text">Счёт: 0</div>
+            <div class="row">
+              <button id="btnRestart" class="btn">Рестарт</button>
+              <button id="btnBackToMenu" class="btn ghost">В меню</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
