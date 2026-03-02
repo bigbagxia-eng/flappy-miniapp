@@ -4,15 +4,21 @@ function tgInit() {
   if (!TG) return;
   TG.ready();
   TG.expand();
-  // Можно подстроить цвета под тему Telegram:
   document.body.style.background = TG.themeParams?.bg_color || "#0b1220";
 }
 
-function tgSendScore(score) {
-  if (!TG) return false;
-  const payload = { score, ts: Date.now() };
+// Отправляем только если best > last_sent_best
+function tgSendBest(score, best) {
+  if (!TG) return { ok: false, reason: "no_tg" };
+
+  const lastSent = Number(localStorage.getItem("last_sent_best") || 0);
+  if (best <= lastSent) return { ok: false, reason: "already_sent" };
+
+  const payload = { score, best, ts: Date.now() };
   TG.sendData(JSON.stringify(payload));
-  return true;
+
+  localStorage.setItem("last_sent_best", String(best));
+  return { ok: true };
 }
 
 tgInit();
