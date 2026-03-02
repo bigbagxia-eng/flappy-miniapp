@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Flappy Mini</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Telegram Mini App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div id="wrap">
+    <canvas id="c" width="360" height="640"></canvas>
+
+    <div id="hud">
+      <div id="score">0</div>
+      <button id="btnPause" class="btn small">⏸</button>
+    </div>
+
+    <div id="overlay" class="hidden">
+      <div class="card">
+        <div class="title" id="ovTitle">Flappy Mini</div>
+        <div class="text" id="ovText">Нажми, чтобы начать</div>
+        <div class="row">
+          <button id="btnPlay" class="btn">Играть</button>
+          <button id="btnSend" class="btn ghost">Отправить результат</button>
+        </div>
+        <div class="row">
+          <button id="btnReset" class="btn ghost">Рестарт</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="tg.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
