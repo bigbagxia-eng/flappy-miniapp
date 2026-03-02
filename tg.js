@@ -1,18 +1,23 @@
-const TG = window.Telegram?.WebApp;
+// Telegram Mini App helpers
+window.TG = window.Telegram?.WebApp;
 
-function tgInit() {
-  if (!TG) return;
-  TG.ready();
-  TG.expand();
-}
+(function initTG(){
+  try{
+    if (!TG) return;
+    TG.ready();
+    TG.expand();
+    TG.disableVerticalSwipes?.();
+    TG.setHeaderColor?.("#0b1220");
+    TG.setBackgroundColor?.("#0b1220");
+  }catch{}
+})();
 
-function tgSendBest(score, best) {
-  if (!TG) return;
-  const lastSent = Number(localStorage.getItem("last_sent_best") || 0);
-  if (best <= lastSent) return;
-
-  TG.sendData(JSON.stringify({ score, best, ts: Date.now() }));
-  localStorage.setItem("last_sent_best", String(best));
-}
-
-tgInit();
+window.tgSendBest = function(best, score){
+  try{
+    if (!TG) return;
+    const last = Number(localStorage.getItem("last_sent_best") || 0);
+    if (best <= last) return;
+    localStorage.setItem("last_sent_best", String(best));
+    TG.sendData(JSON.stringify({ best, score, ts: Date.now() }));
+  }catch{}
+};
