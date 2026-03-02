@@ -33,6 +33,7 @@ const VOL = {
 };
 
 async function sndInit() {
+  if (SND.ready) return;
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return;
 
@@ -53,7 +54,9 @@ async function sndInit() {
       const res = await fetch(url);
       const arr = await res.arrayBuffer();
       SND.bufs[k] = await SND.ctx.decodeAudioData(arr);
-    } catch {}
+    } catch (e) {
+      console.warn("Sound load failed:", k, e);
+    }
   }
 
   SND.ready = true;
@@ -81,18 +84,17 @@ function sndPlay(name, vol) {
 function sndStartBgm() {
   if (!SND.ready || !SND.unlocked || SND.muted) return;
   if (SND.bgmSrc) return;
+  const buf = SND.bufs.bgm;
+  if (!buf) return;
 
   const src = SND.ctx.createBufferSource();
   const gain = SND.ctx.createGain();
-
   gain.gain.value = VOL.bgm;
-  src.buffer = SND.bufs.bgm;
+  src.buffer = buf;
   src.loop = true;
-
   src.connect(gain);
   gain.connect(SND.ctx.destination);
   src.start(0);
-
   SND.bgmSrc = src;
 }
 
@@ -109,7 +111,8 @@ function sndGameOver() {
 function sndToggleMute() {
   SND.muted = !SND.muted;
   btnMute.textContent = SND.muted ? "🔇" : "🔊";
-  if (SND.muted) sndStopBgm(); else sndStartBgm();
+  if (SND.muted) sndStopBgm();
+  else sndStartBgm();
 }
 
 // ================= GAME =================
@@ -121,40 +124,63 @@ let score = 0;
 let bestLocal = Number(localStorage.getItem("best_flappy") || 0);
 bestEl.textContent = `BEST ${bestLocal}`;
 
-const bird = { x: 90, y: H/2, v: 0, r: 14 };
-let pipes = [];
-let spawnTimer = 0;
-
 const cfg = {
   g: 1700,
   flap: -520,
   speed: 210,
   gap: 170,
   pipeW: 68,
-  spawn: 1.35,
+  spawn: 1.35,     // сек
   floor: 80,
+  grace: 0.8,      // сек “иммунитета” после старта/рестарта
 };
+
+const bird = { x: 90, y: H / 2, v: 0, r: 14 };
+
+let pipes = [];
+let spawnTimer = 0;
+let graceTimer = 0;
 
 function reset() {
   running = false;
   paused = false;
   gameOver = false;
+
   score = 0;
   scoreEl.textContent = "0";
-  bird.y = H/2;
+
+  bird.y = H / 2;
   bird.v = 0;
+
   pipes = [];
   spawnTimer = 0;
+  graceTimer = cfg.grace;
+
   overlay.style.display = "grid";
+  btnPause.textContent = "⏸";
 }
 
 function start() {
-  if (gameOver) reset();
+  // старт всегда “чистый”
   running = true;
   paused = false;
   gameOver = false;
+
+  // сброс позиции, чтобы не было “сразу упал”
+  bird.y = H / 2;
+  bird.v = 0;
+
+  // grace время — пока нельзя умереть и не спавнятся трубы
+  graceTimer = cfg.grace;
+  spawnTimer = 0;
+  pipes = [];
+
   overlay.style.display = "none";
   sndStartBgm();
+
+  // авто-взмах, чтобы старт был приятным
+  bird.v = cfg.flap * 0.9;
+  sndPlay("flap", VOL.flap);
 }
 
 function flap() {
@@ -174,10 +200,11 @@ function end() {
 
   if (score > bestLocal) {
     bestLocal = score;
-    localStorage.setItem("best_flappy", bestLocal);
+    localStorage.setItem("best_flappy", String(bestLocal));
     bestEl.textContent = `BEST ${bestLocal}`;
+
     sndPlay("newbest", VOL.newbest);
-    tgSendBest(score, bestLocal);
+    if (typeof tgSendBest === "function") tgSendBest(score, bestLocal);
   }
 
   overlay.style.display = "grid";
@@ -186,44 +213,64 @@ function end() {
 function spawnPipe() {
   const min = 40;
   const max = H - cfg.floor - cfg.gap - 40;
-  pipes.push({
-    x: W + 40,
-    top: Math.random()*(max-min)+min,
-    passed: false
-  });
+  const top = Math.random() * (max - min) + min;
+  pipes.push({ x: W + 40, top, passed: false });
 }
 
 function update(dt) {
   if (!running || paused || gameOver) return;
 
-  spawnTimer += dt;
-  if (spawnTimer >= cfg.spawn) {
-    spawnTimer = 0;
-    spawnPipe();
+  // grace time
+  if (graceTimer > 0) graceTimer -= dt;
+
+  // спавн труб только после grace
+  if (graceTimer <= 0) {
+    spawnTimer += dt;
+    if (spawnTimer >= cfg.spawn) {
+      spawnTimer = 0;
+      spawnPipe();
+    }
   }
 
+  // физика птицы
   bird.v += cfg.g * dt;
   bird.y += bird.v * dt;
 
   const floorY = H - cfg.floor;
-  if (bird.y + bird.r >= floorY) end();
 
+  // падение на землю — только после grace
+  if (graceTimer <= 0 && bird.y + bird.r >= floorY) {
+    end();
+    return;
+  }
+
+  // трубы
   for (const p of pipes) {
     p.x -= cfg.speed * dt;
 
+    // счёт
     if (!p.passed && p.x + cfg.pipeW < bird.x) {
       p.passed = true;
       score++;
-      scoreEl.textContent = score;
+      scoreEl.textContent = String(score);
       sndPlay("score", VOL.score);
     }
 
-    if (
-      bird.x + bird.r > p.x &&
-      bird.x - bird.r < p.x + cfg.pipeW &&
-      (bird.y - bird.r < p.top ||
-       bird.y + bird.r > p.top + cfg.gap)
-    ) end();
+    // столкновения — только после grace
+    if (graceTimer <= 0) {
+      const inX =
+        bird.x + bird.r > p.x &&
+        bird.x - bird.r < p.x + cfg.pipeW;
+
+      if (inX) {
+        const hitTop = bird.y - bird.r < p.top;
+        const hitBottom = bird.y + bird.r > p.top + cfg.gap;
+        if (hitTop || hitBottom) {
+          end();
+          return;
+        }
+      }
+    }
   }
 
   pipes = pipes.filter(p => p.x + cfg.pipeW > -40);
@@ -231,18 +278,12 @@ function update(dt) {
 
 function draw() {
   ctx.fillStyle = "#0e1b33";
-  ctx.fillRect(0,0,W,H);
-
-  // bird
-  ctx.beginPath();
-  ctx.fillStyle = "white";
-  ctx.arc(bird.x,bird.y,bird.r,0,Math.PI*2);
-  ctx.fill();
+  ctx.fillRect(0, 0, W, H);
 
   // pipes
   ctx.fillStyle = "rgba(255,255,255,.2)";
   for (const p of pipes) {
-    ctx.fillRect(p.x,0,cfg.pipeW,p.top);
+    ctx.fillRect(p.x, 0, cfg.pipeW, p.top);
     ctx.fillRect(
       p.x,
       p.top + cfg.gap,
@@ -251,38 +292,66 @@ function draw() {
     );
   }
 
+  // bird
+  ctx.beginPath();
+  ctx.fillStyle = "white";
+  ctx.arc(bird.x, bird.y, bird.r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // floor
   ctx.fillStyle = "#000";
-  ctx.fillRect(0,H-cfg.floor,W,cfg.floor);
+  ctx.fillRect(0, H - cfg.floor, W, cfg.floor);
+
+  // маленькая подсказка grace (необязательно, но приятно)
+  if (running && graceTimer > 0) {
+    ctx.fillStyle = "rgba(255,255,255,.6)";
+    ctx.font = "700 14px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText("GO!", W / 2, 110);
+  }
 }
 
 // ================= LOOP =================
 let last = performance.now();
-function loop(now){
-  const dt = Math.min((now-last)/1000,0.033);
+function loop(now) {
+  let dt = (now - last) / 1000;
   last = now;
+  dt = Math.min(dt, 0.033);
+
   update(dt);
   draw();
+
   requestAnimationFrame(loop);
 }
 
 // ================= INPUT =================
 canvas.addEventListener("pointerdown", async () => {
-  if (!SND.ready) await sndInit().catch(()=>{});
+  if (!SND.ready) await sndInit().catch(() => {});
   sndUnlock();
   flap();
 });
 
-window.addEventListener("keydown", (e)=>{
-  if (e.code==="Space"){ e.preventDefault(); flap(); }
-  if (e.code==="KeyP") paused=!paused;
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    e.preventDefault();
+    flap();
+  }
+  if (e.code === "KeyP") {
+    paused = !paused;
+    btnPause.textContent = paused ? "▶" : "⏸";
+  }
 });
 
-btnPlay.onclick = start;
-btnReset.onclick = ()=>{ reset(); start(); };
-btnPause.onclick = ()=> paused=!paused;
+btnPlay.onclick = () => start();
+btnReset.onclick = () => start(); // сразу заново стартуем
+btnPause.onclick = () => {
+  if (!running) return;
+  paused = !paused;
+  btnPause.textContent = paused ? "▶" : "⏸";
+};
 btnMute.onclick = sndToggleMute;
 
-// start
-sndInit().catch(()=>{});
+// старт
+sndInit().catch(() => {});
 reset();
 requestAnimationFrame(loop);
