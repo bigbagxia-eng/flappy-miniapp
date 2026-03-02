@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Flappy Mini</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -17,22 +17,23 @@
           <div id="score">0</div>
           <div id="best">BEST 0</div>
         </div>
+
         <div id="hudBtns">
-          <button id="btnPause" class="btn small" title="Пауза">⏸</button>
+          <button id="btnMute" class="btn small">🔊</button>
+          <button id="btnPause" class="btn small">⏸</button>
         </div>
       </div>
 
-      <div id="overlay" class="hidden">
+      <div id="overlay">
         <div class="card">
           <div class="title" id="ovTitle">Flappy Mini</div>
-          <div class="text" id="ovText">Нажми, чтобы начать</div>
+          <div class="text" id="ovText">Нажми чтобы начать</div>
           <div class="row">
             <button id="btnPlay" class="btn">Играть</button>
           </div>
           <div class="row">
             <button id="btnReset" class="btn ghost">Рестарт</button>
           </div>
-          <div class="hint">Тап / Space — взмах · P — пауза</div>
         </div>
       </div>
     </div>
