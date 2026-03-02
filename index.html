@@ -9,22 +9,30 @@
 </head>
 <body>
   <div id="wrap">
-    <canvas id="c" width="360" height="640"></canvas>
+    <div id="frame">
+      <canvas id="c" width="360" height="640"></canvas>
 
-    <div id="hud">
-      <div id="score">0</div>
-      <button id="btnPause" class="btn small">⏸</button>
-    </div>
-
-    <div id="overlay" class="hidden">
-      <div class="card">
-        <div class="title" id="ovTitle">Flappy Mini</div>
-        <div class="text" id="ovText">Нажми, чтобы начать</div>
-        <div class="row">
-          <button id="btnPlay" class="btn">Играть</button>
+      <div id="hud">
+        <div id="scoreBox">
+          <div id="score">0</div>
+          <div id="best">BEST 0</div>
         </div>
-        <div class="row">
-          <button id="btnReset" class="btn ghost">Рестарт</button>
+        <div id="hudBtns">
+          <button id="btnPause" class="btn small" title="Пауза">⏸</button>
+        </div>
+      </div>
+
+      <div id="overlay" class="hidden">
+        <div class="card">
+          <div class="title" id="ovTitle">Flappy Mini</div>
+          <div class="text" id="ovText">Нажми, чтобы начать</div>
+          <div class="row">
+            <button id="btnPlay" class="btn">Играть</button>
+          </div>
+          <div class="row">
+            <button id="btnReset" class="btn ghost">Рестарт</button>
+          </div>
+          <div class="hint">Тап / Space — взмах · P — пауза</div>
         </div>
       </div>
     </div>
